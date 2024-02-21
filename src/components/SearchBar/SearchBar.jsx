@@ -2,7 +2,6 @@ import { FiSearch } from 'react-icons/fi';
 import css from './SearchBar.module.css';
 import { useState } from 'react';
 import { Notify } from 'notiflix';
-import { paramsForNotify } from '../ErrorMessage/ErrorMessage';
 
 export const SearchBar = ({ onSubmit }) => {
   const [query, setQuery] = useState('');
@@ -14,7 +13,12 @@ export const SearchBar = ({ onSubmit }) => {
   const handleSubmit = e => {
     e.preventDefault();
     if (!query.trim()) {
-      Notify.info('Enter your request, please!', paramsForNotify);
+      Notify.info('Enter your request, please!', {
+        position: 'center-center',
+        timeout: 3000,
+        width: '400px',
+        fontSize: '24px',
+      });
       return;
     }
     onSubmit(query);
