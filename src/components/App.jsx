@@ -5,6 +5,8 @@ import { ErrorMessage } from './ErrorMessage/ErrorMessage';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { getPhotos } from './apiService/api';
 import css from './App.module.css';
+import { LoadMoreBtn } from './LoadMoreBtn/LoadMoreBtn';
+import { ImageModal } from './ImageModal/ImageModal';
 
 export const App = () => {
   const [query, setQuery] = useState('');
@@ -14,6 +16,7 @@ export const App = () => {
   const [error, setError] = useState(null);
   const [isEmpty, setIsEmpty] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
     if (!query) return;
@@ -38,17 +41,49 @@ export const App = () => {
     };
     fetchData();
   }, [query, page]);
+
   const onHandleSubmit = value => {
     setQuery(value);
+    setImages([]);
+    setPage(1);
+    setIsEmpty(false);
+    setError(false);
+    setIsVisible(false);
   };
+
+  const onHandleLoadMore = () => {
+    setPage(prevPage => prevPage + 1);
+  };
+
+  const openModal = item => {
+    setSelectedItem(item);
+  };
+
+  const closeModal = () => {
+    setSelectedItem(null);
+  };
+
   return (
     <>
       <div className={css.container}>
         <h1>Image finder</h1>
         <SearchBar onSubmit={onHandleSubmit} />
 
-        {setImages.length > 0 && <ImageGallery images={images} />}
-
+        {images.length > 0 && (
+          <ImageGallery images={images} onClick={openModal} />
+        )}
+        {isVisible && (
+          <LoadMoreBtn onClick={onHandleLoadMore} disabled={isLoading}>
+            {isLoading ? 'loading...' : 'LOAD MORE'}
+          </LoadMoreBtn>
+        )}
+        {selectedItem && (
+          <ImageModal
+            isOpen={!!selectedItem}
+            onRequestClose={closeModal}
+            selectedItem={selectedItem}
+          />
+        )}
         {!images.length && !isEmpty && <h2>Go search, baby🕶️</h2>}
         {isLoading && <Loader />}
         {error && <ErrorMessage />}
